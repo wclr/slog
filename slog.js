@@ -94,13 +94,7 @@ var slog = {
 }
 
 if (typeof window !== 'undefined'){
-
     window.slog = slog.logger()
-
-    //TODO: remove
-    window.debugLog = {
-        slog: slog.logger
-    }
 }
 
 if (typeof System !== 'undefined' && System.env == 'production'){
