@@ -99,7 +99,7 @@ var slog = {
 
     off: function(){
         _allSilent = true
-    }
+    },
     
     enable: function(){
         _allSilent = false
