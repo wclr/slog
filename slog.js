@@ -39,13 +39,23 @@ var Logger = function(options){
 }
 
 Logger.prototype.on = function(){
-    this._silent = off
+    this._silent = false
 }
+
+Logger.prototype.enable = function(){
+    this._silent = false
+}
+
 
 Logger.prototype.off = function(){
 
     this._silent = true
 }
+
+Logger.prototype.disable = function(){
+    this._silent = true
+}
+
 
 Logger.prototype.log = function(){
     consoleOutput().apply(this, arguments)
@@ -88,6 +98,14 @@ var slog = {
     },
 
     off: function(){
+        _allSilent = true
+    }
+    
+    enable: function(){
+        _allSilent = false
+    },
+
+    disable: function(){
         _allSilent = true
     }
 
