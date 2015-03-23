@@ -1,6 +1,5 @@
 "format cjs";
 
-
 var _allSilent = false
 
 var consoleOutput = function(type){
@@ -11,7 +10,11 @@ var consoleOutput = function(type){
         var args = Array.prototype.slice.call(arguments);
         this.options.prepend && args.unshift(this.options.prepend + '');
 
-        var method = type == 'warn' && console.warn ? 'warn' : 'log'
+        var method = 'log'
+
+        if (console[type]){
+            method = type
+        }
 
         if (/Android.*(^Chrome).*Safari|iPad|MSIE/.test(navigator.userAgent)){
             //console.log(args.length)
@@ -56,7 +59,6 @@ Logger.prototype.disable = function(){
     this._silent = true
 }
 
-
 Logger.prototype.log = function(){
     consoleOutput().apply(this, arguments)
 }
@@ -64,6 +66,16 @@ Logger.prototype.log = function(){
 Logger.prototype.warn = function(){
     consoleOutput('warn').apply(this, arguments)
 }
+
+Logger.prototype.info = function(){
+    consoleOutput('info').apply(this, arguments)
+}
+
+
+Logger.prototype.error = function(){
+    consoleOutput('error').apply(this, arguments)
+}
+
 
 
 var slog = {
@@ -75,20 +87,11 @@ var slog = {
             logger.log.apply(logger, arguments)
         }
 
-        fn.warn = function(){
-            logger.warn.apply(logger, arguments)
-            return fn
-        }
-        fn.on = function(){
-            logger.on.apply(logger)
-            return fn
-        }
-
-        fn.off = function(){
-            logger.off.apply(logger)
-            return fn
-        }
-
+        ;['log', 'warn', 'error', 'info', 'on', 'off', 'disable', 'enable'].forEach(function(m){
+            fn[m] = function(){
+                logger[m].apply(logger, arguments)
+            }
+        })
         return fn
 
     },
@@ -118,6 +121,5 @@ if (typeof window !== 'undefined'){
 if (typeof System !== 'undefined' && System.env == 'production'){
     _allSilent = true
 }
-
 
 module.exports = slog.logger
