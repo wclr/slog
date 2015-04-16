@@ -1,32 +1,33 @@
 ###SLog
 Simple client side logger CJS module.
 
-By default output is disabled, in dev mode you have to enable it explicitly:
+`slog` is attached to `window` object to allow  global output and slog management.
 
 ```javascript
-require('slog').enable()
+// use anywhere without requiring slog
+slog('some message') // console output with "global" prefix: `global: some message`
 ```
 
-Usage:
+By default sog ALL OUTPUT is disabled, in dev mode you have to enable it explicitly:
 
 ```javascript
-var slog = require('slog')('some-module') // create loger for particular module
+windows.slog.enable()
+```
 
-slog('some message') // console output: some-module: some message
+or set `window.slog` to `true` or `string` value (witch will be used instead of default "global" prefix) before `slog` is required, so it will be enabled while init.
+
+CJS usage:
+
+```javascript
+var slog = require('slog')('some-module') // create loger for particular module, output is enabled by default
+
+slog('some message') // console output with prefix: `some-module: some message`
 
 slog.disable() // disable output of created logger
 slog.enable() // enable output of created logger
 
 ```
 
-`slog` is attached to `window` object to allow  global output
-
 ```javascript
-// use anywhere without requiring
-slog('some message') // console output: some message
-```
-
-```javascript
-slog.enableAll() // turns on output off all loggers (even disabled)
-
+window.slog.enableAll() // turns on output off all loggers (even disabled)
 ```
