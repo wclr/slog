@@ -28,6 +28,11 @@ slog.enable() // enable output of created logger
 
 ```
 
+Global management:
+
 ```javascript
+window.slog.enable() // turns on output off all loggers (but not disabled)
+window.slog.disable() // turns off output off all loggers
 window.slog.enableAll() // turns on output off all loggers (even disabled)
+window.slog.disableAll() // cancels enableAll
 ```
