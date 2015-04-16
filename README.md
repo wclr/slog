@@ -8,7 +8,7 @@ Simple client side logger CJS module.
 slog('some message') // console output with "global" prefix: `global: some message`
 ```
 
-By default sog ALL OUTPUT is disabled, in dev mode you have to enable it explicitly:
+By default ALL slog OUTPUT is disabled, in dev mode you have to enable it explicitly with `slog.enable`:
 
 ```javascript
 windows.slog.enable()
@@ -25,7 +25,6 @@ slog('some message') // console output with prefix: `some-module: some message`
 
 slog.disable() // disable output of created logger
 slog.enable() // enable output of created logger
-
 ```
 
 Global management:
