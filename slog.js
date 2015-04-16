@@ -1,12 +1,13 @@
 "format cjs";
 
-var _allSilent = false
+var _allSilent = true
+var _forceLoud = false
 
 var consoleOutput = function(type){
 
     return function(){
 
-        if (this._silent || _allSilent) return
+        if ((this._silent || _allSilent) && !_forceLoud) return
         var args = Array.prototype.slice.call(arguments);
         this.options.prepend && args.unshift(this.options.prepend + '');
 
@@ -104,6 +105,16 @@ var slog = {
         _allSilent = true
     },
     
+    onAll: function(){
+        _forceLoud = true
+        _allSilent = false
+    },
+    
+    offAll: function(){
+        _forceLoud = false
+        _allSilent = false
+    },
+    
     enable: function(){
         _allSilent = false
     },
@@ -114,12 +125,11 @@ var slog = {
 
 }
 
+slog.enableAll = slog.onAll
+slog.disableAll = slog.offAll
+
 if (typeof window !== 'undefined'){
     window.slog = slog.logger()
-}
-
-if (typeof System !== 'undefined' && System.env == 'production'){
-    _allSilent = true
 }
 
 module.exports = slog.logger
