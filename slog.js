@@ -18,7 +18,6 @@ var consoleOutput = function(type){
         }
 
         if (/Android.*(^Chrome).*Safari|iPad|MSIE/.test(navigator.userAgent)){
-            //console.log(args.length)
             args = args.map(function(a){
                 return (typeof a === 'object') ? JSON.stringify(a) : a && a.toString()
             })
@@ -85,10 +84,10 @@ var slog = {
         var logger = new Logger(options)
 
         var fn = function(){
-            logger.log.apply(logger, arguments)
-        }
+                logger.log.apply(logger, arguments)
+            }
 
-        ;['log', 'warn', 'error', 'info', 'on', 'off', 'disable', 'enable'].forEach(function(m){
+            ;['log', 'warn', 'error', 'info', 'on', 'off', 'disable', 'enable'].forEach(function(m){
             fn[m] = function(){
                 logger[m].apply(logger, arguments)
             }
@@ -104,32 +103,36 @@ var slog = {
     off: function(){
         _allSilent = true
     },
-    
+
     onAll: function(){
         _forceLoud = true
         _allSilent = false
     },
-    
+
     offAll: function(){
         _forceLoud = false
         _allSilent = false
-    },
-    
-    enable: function(){
-        _allSilent = false
-    },
-
-    disable: function(){
-        _allSilent = true
     }
-
 }
 
 slog.enableAll = slog.onAll
 slog.disableAll = slog.offAll
 
+slog.enable = slog.on
+slog.disable = slog.off
+
 if (typeof window !== 'undefined'){
-    window.slog = slog.logger()
+
+    var globalLogger = slog.logger(typeof window.slog == 'string' ? window.slog : 'global')
+
+    for (var m in slog){
+        globalLogger[m] = slog[m]
+    }
+
+    if (window.slog){
+        globalLogger.enable()
+    }
+    window.slog = globalLogger
 }
 
 module.exports = slog.logger
