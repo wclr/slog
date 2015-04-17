@@ -9,7 +9,7 @@ var consoleOutput = function(type){
 
         if ((this._silent || _allSilent) && !_forceLoud) return
         var args = Array.prototype.slice.call(arguments);
-        this.options.prepend && args.unshift(this.options.prepend + '');
+        this.options.prepend && args.unshift(this.options.prepend + ':');
 
         var method = 'log'
 
@@ -49,7 +49,6 @@ Logger.prototype.enable = function(){
     this._silent = false
 }
 
-
 Logger.prototype.off = function(){
 
     this._silent = true
@@ -75,8 +74,6 @@ Logger.prototype.info = function(){
 Logger.prototype.error = function(){
     consoleOutput('error').apply(this, arguments)
 }
-
-
 
 var slog = {
 
@@ -113,6 +110,8 @@ var slog = {
         _forceLoud = false
         _allSilent = false
     }
+
+
 }
 
 slog.enableAll = slog.onAll
@@ -123,7 +122,7 @@ slog.disable = slog.off
 
 if (typeof window !== 'undefined'){
 
-    var globalLogger = slog.logger(typeof window.slog == 'string' ? window.slog : 'global')
+    var globalLogger = slog.logger(typeof window.slog == 'string' ? window.slog : 'slog')
 
     for (var m in slog){
         globalLogger[m] = slog[m]
