@@ -71,6 +71,38 @@ Logger.prototype.info = function(){
 }
 
 
+var timers = {},
+    lastTimer = ''
+
+Logger.prototype.start = function(message){
+    if ((this._silent || _allSilent) && !_forceLoud) return
+    var time = new Date(),
+        timerName = time.getTime() + message
+    lastTimer = timerName
+    timers[timerName] = {start: time, message: message}
+    consoleOutput().apply(this, ['start timer:', message])
+    return timerName
+}
+
+Logger.prototype.stop = function(timerName, sec){
+    if ((this._silent || _allSilent) && !_forceLoud) return
+    var timer = timers[timerName || lastTimer]
+    if (timer){
+        if (timer.stop){
+            this.warn('timer for', timer.message, 'has already been stopped')
+        }
+        timer.stop = new Date()
+        var diff = (timer.stop - timer.start) / (sec ? 1000 : 1),
+            unit = sec ? 'sec' : 'ms'
+        consoleOutput().apply(this, ['stop timer:', timer.message, '-', diff, unit])
+        // remove timer in 60 seconds
+        setTimeout(function(){
+            delete timers[timerName || lastTimer]
+        }, 60*1000)
+    }
+}
+
+
 Logger.prototype.error = function(){
     consoleOutput('error').apply(this, arguments)
 }
@@ -84,7 +116,7 @@ var slog = {
                 logger.log.apply(logger, arguments)
             }
 
-            ;['log', 'warn', 'error', 'info', 'on', 'off', 'disable', 'enable'].forEach(function(m){
+            ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable'].forEach(function(m){
             fn[m] = function(){
                 logger[m].apply(logger, arguments)
             }
