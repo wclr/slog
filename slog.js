@@ -76,6 +76,10 @@ var timers = {},
 
 Logger.prototype.start = function(message){
     if ((this._silent || _allSilent) && !_forceLoud) return
+    
+    var args = Array.prototype.slice.call(arguments);
+    message = args.join(' ')
+    
     var time = new Date(),
         timerName = time.getTime() + message
     lastTimer = timerName
