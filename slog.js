@@ -122,7 +122,7 @@ var slog = {
 
             ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable'].forEach(function(m){
             fn[m] = function(){
-                logger[m].apply(logger, arguments)
+                return logger[m].apply(logger, arguments)
             }
         })
         return fn
@@ -164,7 +164,7 @@ if (typeof window !== 'undefined'){
         globalLogger[m] = slog[m]
     }
 
-    if (window.slog){
+    if (window.slog || (window.localStorage && window.localStorage.getItem('slog'))){
         globalLogger.enable()
     }
     window.slog = globalLogger
