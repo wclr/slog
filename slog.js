@@ -41,16 +41,18 @@ var Logger = function(options, enabled){
         slient = this.options.disabled
     }
 
+    this._silent = false
+
     if (typeof enabled == 'boolean'){
+
         this._silent = !enabled
     }
 
+    this._timestamp = parseInt((new Date().getTime())*Math.random())
+
     if (this.options.prepend){
-        instances[this.options.prepend] = this
+        instances[this.options.prepend || this._timestamp] = this
     }
-
-    this._silent = false
-
 }
 
 Logger.prototype.on = function(){
@@ -111,38 +113,74 @@ Logger.prototype.start = function(message){
 
     var time = new Date(),
         timerName = time.getTime() + message + Math.random().toString()
-    lastTimer = timerName
-    timers[timerName] = {start: time, message: message}
+
+    var self = this
+
+    var timer = {
+        name: timerName,
+        start: time,
+        message: message,
+    }
+
+    timer.stop = function(){
+        var args = Array.prototype.slice.call(arguments);
+        var stopMessage = args.length ? ' - ' + args.join(' ') : ''
+        var now = new Date()
+
+        var diff = (now - (timer.lastStop || timer.start)),
+            unit = 'ms'
+
+        args = ['stop timer:', timer.message + stopMessage, '-', diff, unit]
+
+        if (timer.lastStop){
+            args.push('(' + (now - timer.start), unit + ')')
+        }
+
+        timer.lastStop = now
+
+        consoleOutput().apply(self, args)
+    }
+
+    lastTimer = timer
+    timers[timerName] = timer
     consoleOutput().apply(this, ['start timer:', message])
 
     // stop timeout warning in 120 sec
-    var self = this
+
     setTimeout(function(){
-        if (!timers[timerName].stop){
+        if (!timers[timerName].lastStop){
             self.warn('Timer has not been stopped in 120 sec', timerName, message)
         }
     }, 120*1000)
-    return timerName
+    return timer
 }
 
-Logger.prototype.stop = function(timerName){
+Logger.prototype.stop = function(timer){
     if ((this._silent || _allSilent) && !_forceLoud) return
-    var timer = timers[timerName || lastTimer]
-    if (timer){
-        var args = Array.prototype.slice.call(arguments);
-        args.shift()
-        var stopMessage = args.length ? ' - ' + args.join(' ') : ''
 
-        if (timer.stop){
-            this.warn('timer for', timer.message, 'has already been stopped')
-        }
-        timer.stop = new Date()
-        var diff = (timer.stop - timer.start),
-            unit = 'ms'
-        consoleOutput().apply(this, ['stop timer:', timer.message + stopMessage, '-', diff, unit])
-    } else {
-        this.warn('no timer exists with name', timerName || lastTimer)
+    if (!timer){
+        timer = lastTimer
     }
+
+    var args = Array.prototype.slice.call(arguments);
+    args.shift()
+    timer.stop.apply(timer, args)
+
+    //if (timer){
+    //    var args = Array.prototype.slice.call(arguments);
+    //    args.shift()
+    //    var stopMessage = args.length ? ' - ' + args.join(' ') : ''
+    //
+    //    if (timer.stop){
+    //        this.warn('timer for', timer.message, 'has already been stopped')
+    //    }
+    //    timer.stop = new Date()
+    //    var diff = (timer.stop - timer.start),
+    //        unit = 'ms'
+    //    consoleOutput().apply(this, ['stop timer:', timer.message + stopMessage, '-', diff, unit])
+    //} else {
+    //    this.warn('no timer exists with name', timerName || lastTimer)
+    //}
 }
 
 
@@ -152,18 +190,19 @@ Logger.prototype.error = function(){
 
 var slog = {
 
-    logger: function(options){
-        var logger = new Logger(options)
+    logger: function(options, enabled){
+        var logger = new Logger(options, enabled)
 
         var fn = function(){
                 logger.log.apply(logger, arguments)
             }
 
-            ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable', 'inspect'].forEach(function(m){
-            fn[m] = function(){
-                return logger[m].apply(logger, arguments)
-            }
-        })
+            ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable', 'inspect']
+            .forEach(function(m){
+                fn[m] = function(){
+                    return logger[m].apply(logger, arguments)
+                }
+            })
         return fn
 
     },
@@ -196,16 +235,41 @@ var slog = {
     },
 
     onAll: function(){
-        _forceLoud = true
-        _allSilent = false
+        Object.keys(instances).forEach(function(name){
+            instances[name].on()
+        })
     },
 
     offAll: function(){
-        _forceLoud = false
-        _allSilent = false
+        Object.keys(instances).forEach(function(name){
+            instances[name].off()
+        })
+    },
+
+    mute: function(state){
+        if (state === undefined){
+            state = true
+        }
+        if (state){
+            this.warn('all loggers are mute now')
+        } else {
+            this.warn('all loggers are not mute now')
+        }
+        _forceLoud = !state
+        _allSilent = state
+    },
+
+    loud: function(state){
+        if (state === undefined){
+            state = true
+        }
+        if (state){
+            this.warn('all loggers are loud now')
+        } else {
+            this.warn('all loggers are not loud now')
+        }
+        _forceLoud = state
     }
-
-
 }
 
 slog.enableAll = slog.onAll
