@@ -166,21 +166,25 @@ Logger.prototype.stop = function(timer){
     args.shift()
     timer.stop.apply(timer, args)
 
-    //if (timer){
-    //    var args = Array.prototype.slice.call(arguments);
-    //    args.shift()
-    //    var stopMessage = args.length ? ' - ' + args.join(' ') : ''
-    //
-    //    if (timer.stop){
-    //        this.warn('timer for', timer.message, 'has already been stopped')
-    //    }
-    //    timer.stop = new Date()
-    //    var diff = (timer.stop - timer.start),
-    //        unit = 'ms'
-    //    consoleOutput().apply(this, ['stop timer:', timer.message + stopMessage, '-', diff, unit])
-    //} else {
-    //    this.warn('no timer exists with name', timerName || lastTimer)
-    //}
+}
+
+Logger.prototype.timeout = function(){
+    if ((this._silent || _allSilent) && !_forceLoud) return
+
+    var args = Array.prototype.slice.call(arguments);
+    var timeout = args.pop()
+    var self = this
+
+    setTimeout(function(){
+        args = args.map(function(arg){
+            if (typeof arg == 'function'){
+                return arg()
+            } else {
+                return arg
+            }
+        })
+        self.log.apply(self, args)
+    }, timeout)
 }
 
 
@@ -197,7 +201,7 @@ var slog = {
                 logger.log.apply(logger, arguments)
             }
 
-            ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable', 'inspect']
+            ;['log', 'warn', 'error', 'info', 'on', 'off', 'start', 'stop', 'disable', 'enable', 'inspect', 'timeout']
             .forEach(function(m){
                 fn[m] = function(){
                     return logger[m].apply(logger, arguments)
