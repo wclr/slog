@@ -95,17 +95,10 @@ Logger.prototype.inspect = function(){
 var timers = {},
     lastTimer = ''
 
-
-var Timer = function(){
-
-}
-
-Timer.prototype.stop = function(){
-
-}
-
 Logger.prototype.start = function(message){
-    if ((this._silent || _allSilent) && !_forceLoud) return
+    if ((this._silent || _allSilent) && !_forceLoud) {
+        return {stop: function(){}}
+    }
 
     var args = Array.prototype.slice.call(arguments);
 
