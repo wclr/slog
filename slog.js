@@ -21,7 +21,15 @@ var consoleOutput = function(type){
 
         if (/Android.*(^Chrome).*Safari|iPad|MSIE/.test(navigator.userAgent)){
             args = args.map(function(a){
-                return (typeof a === 'object') ? JSON.stringify(a) : a && a.toString()
+                if (typeof a === 'object'){
+                    try {
+                        return JSON.stringify(a)
+                    } catch(e){
+                        return '[object]'
+                    }
+                } else {
+                    return a && a.toString()
+                }
             })
             args = args.join(' ')
             console[method](args)
