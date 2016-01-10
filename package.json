@@ -1,6 +1,6 @@
 {
   "name": "slog",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "simple logger",
   "main": "slog.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/whitecolor/slog.git"
   },
-  "author": "",
+  "author": "whitecolor",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/whitecolor/slog/issues"

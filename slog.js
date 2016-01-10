@@ -31,7 +31,7 @@ var consoleOutput = function(type){
           return a && a.toString()
         }
       })
-      args = args.join(' ')
+      args = [args.join(' ')]
     }
 
     var cons = (window.slog && window.slog.cleanConsole) || console
